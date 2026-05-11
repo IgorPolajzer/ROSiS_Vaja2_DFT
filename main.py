@@ -1,16 +1,19 @@
-# This is a sample Python script.
+import matplotlib
+import numpy as np
+from importlib import reload
+import util
+from util import generate_frequency, plot_dft_and_fft
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+reload(util)
 
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    T = 1.0
+    Fs = 1000
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    freq = generate_frequency(1.0, 20, 0.0, T, Fs)
+
+    y_dft = util.dft(freq, Fs, T)
+    y_fft = np.fft.fft(freq)
+
+    plot_dft_and_fft(y_fft, T, Fs, "FFT")
+    plot_dft_and_fft(y_fft, T, Fs, "DFT")
