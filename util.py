@@ -22,22 +22,23 @@ def plot_frequency(A, y, p, t, Fs, freq):
     plt.grid(True)
     plt.show()
 
-def dft(freq, Fs, T, max_freqs):
-    N = np.arange(len(freq)) # Frequency length.
+def dft(y, Fs, T, max_freqs):
+    N = np.arange(len(y)) # Frequency length.
 
     # All frequencies from 0 to Fs stepped by 1/T
     # Freqency resolution 1/T
-    freqs = np.arange(0, Fs, 1/T)[:max_freqs]
+    freqs = np.arange(0, Fs, 1/T)
+    freqs = freqs[:max_freqs]
     result = []
 
     # Dot product over all frequencies [0, Fs].
     for f in freqs:
-        result.append(np.dot(freq, np.exp(-1j * 2 * np.pi * f * N / Fs)))
+        result.append(np.dot(y, np.exp(-1j * 2 * np.pi * f * N / Fs)))
 
     return np.array(result)
 
 
-def real_sin_dft(freq, Fs, T, real_freq, max_freqs):
+def real_sin_dft(y, Fs, T, real_freq, max_freqs):
     # All frequencies from 0 to Fs stepped by 1/T
     # Freqency resolution 1/T
     freqs = np.arange(0, Fs, 1/T)[:max_freqs]
@@ -45,7 +46,7 @@ def real_sin_dft(freq, Fs, T, real_freq, max_freqs):
 
     # Dot product over all frequencies [0, Fs].
     for f in freqs:
-        result.append(np.dot(freq, real_freq))
+        result.append(np.dot(y, real_freq))
 
     return np.array(result)
 
