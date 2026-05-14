@@ -22,7 +22,8 @@ def plot_frequency(A, y, p, t, Fs, freq):
     plt.grid(True)
     plt.show()
 
-def dft(y, Fs, T, max_freqs):
+def dft(y, Fs, max_freqs):
+    T = len(y) / Fs
     N = np.arange(len(y)) # Frequency length.
 
     # All frequencies from 0 to Fs stepped by 1/T
@@ -35,27 +36,31 @@ def dft(y, Fs, T, max_freqs):
     for f in freqs:
         result.append(np.dot(y, np.exp(-1j * 2 * np.pi * f * N / Fs)))
 
-    return np.array(result)
+    return np.array(result), freqs
 
 
-def real_sin_dft(y, Fs, T, real_freq, max_freqs):
-    # All frequencies from 0 to Fs stepped by 1/T
-    # Freqency resolution 1/T
-    freqs = np.arange(0, Fs, 1/T)[:max_freqs]
+import numpy as np
+
+
+def real_sin_projection(y, Fs, max_freq_bins):
+    N = len(y)
+    T = N / Fs
+    t = np.arange(N) / Fs
+
     result = []
+    freqs = []
 
-    # Dot product over all frequencies [0, Fs].
-    for f in freqs:
-        result.append(np.dot(y, real_freq))
+    for k in range(max_freq_bins):
+        f = k / T  # Izračun frekvence za trenutni bin
+        reference_sin = np.cos(2 * np.pi * f * t) # Realna frekvenca
 
-    return np.array(result)
+        result.append(np.dot(y, reference_sin))
+        freqs.append(f)
+
+    return np.array(result), np.array(freqs)
 
 
-def plot_analasys(y, Fs, T, label):
-    N_total = int(T * Fs)
-    max_freq = (len(y) / N_total) * Fs
-    x = np.linspace(0, max_freq, len(y))
-
+def plot_analasys(y, x, label):
     plt.plot(x, abs(y), label=label)
     plt.title('Frekvenčna vsebina')
     plt.xlabel('Frekvenca [Hz]')
@@ -65,13 +70,16 @@ def plot_analasys(y, Fs, T, label):
     plt.show()
 
 
-def plot_dft_and_fft(y_fft, y_dft, T1, T2, Fs):
-    plot_analasys(y_fft, Fs, T1, 'FFT')
-    plot_analasys(y_dft, Fs, T2, 'DFT')
+def plot_dft_and_fft(y_fft, y_dft, freqs_fft, freqs_dft, Fs):
+    plot_analasys(y_fft, freqs_fft, 'FFT')
+    plot_analasys(y_dft, freqs_dft, 'DFT')
 
 
-def fft_dft(freq, Fs, T, max_freqs):
-    y_dft = dft(freq, Fs, T, max_freqs)
-    y_fft = np.fft.fft(freq)[:max_freqs] # We take the first 'max_freqs' found through FFT.
+def fft_dft(freq, Fs, max_freqs):
+    y_dft, freqs_dft = dft(freq, Fs, max_freqs)
+    y_fft = np.fft.fft(freq)[:max_freqs]
 
-    plot_dft_and_fft(y_fft, y_dft, T, T, Fs)
+    T_eff = len(freq) / Fs
+    freqs_fft = np.arange(0, Fs, 1/T_eff)[:max_freqs]
+
+    plot_dft_and_fft(y_fft, y_dft, freqs_fft, freqs_dft, Fs)
